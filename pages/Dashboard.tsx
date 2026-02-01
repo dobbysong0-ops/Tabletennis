@@ -263,6 +263,10 @@ const Dashboard: React.FC<DashboardProps> = ({
               />
               <button
                 type="submit"
+                onClick={(e) => {
+                  // Explicitly trigger if form submit fails for some reason
+                  if (!e.defaultPrevented) handleAddTodo(e as any);
+                }}
                 className="absolute right-1.5 top-1.5 w-8 h-8 bg-teal-600 text-white rounded-xl flex items-center justify-center hover:bg-teal-700 hover:scale-105 active:scale-90 transition-all shadow-md shadow-teal-100"
                 title="添加任务"
               >

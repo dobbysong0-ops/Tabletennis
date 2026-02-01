@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 import Login from './components/Login';
@@ -150,7 +150,7 @@ const App: React.FC = () => {
     }
   };
 
-  const addTodo = async (text: string) => {
+  const addTodo = useCallback(async (text: string) => {
     const newTodo: Todo = {
       id: Date.now().toString(),
       text,
@@ -163,7 +163,7 @@ const App: React.FC = () => {
     } catch (error) {
       console.error("Failed to add todo:", error);
     }
-  };
+  }, []);
 
   const toggleTodo = async (id: string) => {
     const todo = todos.find(t => t.id === id);
