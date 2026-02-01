@@ -259,13 +259,14 @@ const Dashboard: React.FC<DashboardProps> = ({
                 placeholder="快速添加任务..."
                 value={newTodoText}
                 onChange={(e) => setNewTodoText(e.target.value)}
-                className="w-full pl-5 pr-10 py-3 bg-gray-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-teal-500 transition-all font-medium text-xs shadow-inner"
+                className="w-full pl-5 pr-12 py-3 bg-gray-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-teal-500 transition-all font-bold text-xs shadow-inner"
               />
               <button
                 type="submit"
-                className="absolute right-2 top-1.5 w-7 h-7 bg-teal-600 text-white rounded-lg flex items-center justify-center hover:bg-teal-700 transition-all"
+                className="absolute right-1.5 top-1.5 w-8 h-8 bg-teal-600 text-white rounded-xl flex items-center justify-center hover:bg-teal-700 hover:scale-105 active:scale-90 transition-all shadow-md shadow-teal-100"
+                title="添加任务"
               >
-                <i className="ri-add-line"></i>
+                <i className="ri-add-line text-lg"></i>
               </button>
             </form>
 
