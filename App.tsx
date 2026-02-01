@@ -12,7 +12,7 @@ import Records from './pages/Records';
 import Renewals from './pages/Renewals';
 import SmartAssistant from './components/SmartAssistant';
 import { NavItem, Student, Coach, Lead, Record, Renewal, Course, Todo } from './types';
-import { api } from './api/client';
+import { api } from './api-client';
 
 const App: React.FC = () => {
   // 默认状态设为未登录，强制每次进入都需要输入密码

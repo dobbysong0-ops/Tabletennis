@@ -17,6 +17,16 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Backend is running' });
 });
 
+// Debug route for environment variables (safe version)
+app.get('/api/debug', (req, res) => {
+    res.json({
+        hasUrl: !!process.env.SUPABASE_URL,
+        hasKey: !!process.env.SUPABASE_ANON_KEY,
+        env: process.env.NODE_ENV,
+        urlPrefix: req.url
+    });
+});
+
 // --- Routes (Initial placeholders based on requirements) ---
 
 // Get all students
