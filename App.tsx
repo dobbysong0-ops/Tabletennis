@@ -12,7 +12,7 @@ import Records from './pages/Records';
 import Renewals from './pages/Renewals';
 import SmartAssistant from './components/SmartAssistant';
 import { NavItem, Student, Coach, Lead, Record, Renewal, Course, Todo } from './types';
-import { api } from './api';
+import { api } from './api/client';
 
 const App: React.FC = () => {
   // 默认状态设为未登录，强制每次进入都需要输入密码
@@ -255,7 +255,7 @@ const App: React.FC = () => {
       case NavItem.Leads:
         return <Leads leads={leads} onAddLead={addLead} onUpdateLead={updateLead} />;
       case NavItem.Courses:
-        return <CoursesPage courses={courses} students={students} onAddCourse={addCourse} />;
+        return <CoursesPage courses={courses} students={students} coaches={coaches} onAddCourse={addCourse} />;
       case NavItem.Records:
         return <Records records={records} students={students} coaches={coaches} courses={courses} onAddRecord={addRecord} />;
       case NavItem.Coaches:
