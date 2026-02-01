@@ -15,15 +15,30 @@ interface DashboardProps {
   onDeleteTodo: (id: string) => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ 
-  students, records, leads, renewals, todos, onTabChange, 
-  onAddTodo, onToggleTodo, onDeleteTodo 
+const Dashboard: React.FC<DashboardProps> = ({
+  students, records, leads, renewals, todos, onTabChange,
+  onAddTodo, onToggleTodo, onDeleteTodo
 }) => {
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [newTodoText, setNewTodoText] = useState('');
   const [revenuePeriod, setRevenuePeriod] = useState<'weekly' | 'monthly' | 'yearly'>('monthly');
 
+  // 累计消耗：所有销课记录的总和
   const totalConsumedTimes = records.reduce((acc, curr) => acc + curr.times, 0);
+
+  // 本月消耗（用于对比或展示）
+  const monthlyConsumedTimes = useMemo(() => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    return records
+      .filter(r => {
+        const d = new Date(r.date);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      })
+      .reduce((acc, curr) => acc + curr.times, 0);
+  }, [records]);
+
   const alertStudents = students.filter(s => s.remainingTimes < 5);
   const activeStudentsCount = students.filter(s => s.status === '在训').length;
   const intentionalLeadsCount = leads.filter(l => l.status !== '已签约').length;
@@ -31,7 +46,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   // 营收数据计算
   const revenueChartData = useMemo(() => {
     const now = new Date();
-    
+
     if (revenuePeriod === 'weekly') {
       // 获取过去7天
       const data = [];
@@ -74,35 +89,35 @@ const Dashboard: React.FC<DashboardProps> = ({
   const totalRevenue = useMemo(() => revenueChartData.reduce((sum, d) => sum + d.amount, 0), [revenueChartData]);
 
   const stats = [
-    { 
-      label: '在训学员', 
-      value: activeStudentsCount.toString(), 
-      sub: `总人数 ${students.length}`, 
+    {
+      label: '在训学员',
+      value: activeStudentsCount.toString(),
+      sub: `总人数 ${students.length}`,
       icon: 'ri-user-smile-line',
       color: 'blue',
       target: NavItem.Students
     },
-    { 
-      label: '累计消耗', 
-      value: `${totalConsumedTimes}次`, 
-      sub: '本月消课记录', 
-      icon: 'ri-flashlight-line', 
+    {
+      label: '累计消课',
+      value: `${totalConsumedTimes}次`,
+      sub: `本月消课 ${monthlyConsumedTimes}次`,
+      icon: 'ri-flashlight-line',
       color: 'teal',
       target: NavItem.Records
     },
-    { 
-      label: '意向潜客', 
-      value: intentionalLeadsCount.toString(), 
-      sub: '待转化线索', 
-      icon: 'ri-chat-3-line', 
+    {
+      label: '意向潜客',
+      value: intentionalLeadsCount.toString(),
+      sub: '待转化线索',
+      icon: 'ri-chat-3-line',
       color: 'orange',
       target: NavItem.Leads
     },
-    { 
-      label: '异常预警', 
-      value: alertStudents.length.toString(), 
-      sub: '课时不足5次', 
-      icon: 'ri-error-warning-fill', 
+    {
+      label: '异常预警',
+      value: alertStudents.length.toString(),
+      sub: '课时不足5次',
+      icon: 'ri-error-warning-fill',
       color: 'rose',
       target: 'WARNING_MODAL' as any
     },
@@ -136,7 +151,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, i) => (
           <div key={i} className="flex flex-col">
-            <div 
+            <div
               onClick={() => stat.target && handleStatClick(stat.target)}
               className={`bg-white p-6 rounded-[2rem] border-2 border-dashed border-gray-100 shadow-sm transition-all relative group cursor-pointer h-full hover:border-${stat.color}-400 hover:shadow-xl hover:bg-${stat.color}-50/10 active:scale-[0.98]`}
             >
@@ -187,29 +202,29 @@ const Dashboard: React.FC<DashboardProps> = ({
               <BarChart data={revenueChartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                <XAxis 
-                  dataKey="name" 
-                  axisLine={false} 
-                  tickLine={false} 
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
                   tick={{ fill: '#9ca3af', fontSize: 11, fontWeight: 700 }}
                   dy={10}
                 />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
                   tick={{ fill: '#9ca3af', fontSize: 11, fontWeight: 700 }}
                   tickFormatter={(val) => `¥${val}`}
                 />
-                <Tooltip 
+                <Tooltip
                   cursor={{ fill: '#f9fafb' }}
-                  contentStyle={{ 
-                    borderRadius: '16px', 
-                    border: 'none', 
+                  contentStyle={{
+                    borderRadius: '16px',
+                    border: 'none',
                     boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
                     padding: '12px'
                   }}
@@ -239,14 +254,14 @@ const Dashboard: React.FC<DashboardProps> = ({
 
           <div className="space-y-4">
             <form onSubmit={handleAddTodo} className="relative group">
-              <input 
-                type="text" 
-                placeholder="快速添加任务..." 
+              <input
+                type="text"
+                placeholder="快速添加任务..."
                 value={newTodoText}
                 onChange={(e) => setNewTodoText(e.target.value)}
                 className="w-full pl-5 pr-10 py-3 bg-gray-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-teal-500 transition-all font-medium text-xs shadow-inner"
               />
-              <button 
+              <button
                 type="submit"
                 className="absolute right-2 top-1.5 w-7 h-7 bg-teal-600 text-white rounded-lg flex items-center justify-center hover:bg-teal-700 transition-all"
               >
@@ -257,11 +272,11 @@ const Dashboard: React.FC<DashboardProps> = ({
             <div className="space-y-2 max-h-[280px] overflow-y-auto custom-scrollbar pr-1">
               {todos.length > 0 ? (
                 todos.map(todo => (
-                  <div 
-                    key={todo.id} 
+                  <div
+                    key={todo.id}
                     className={`group flex items-center gap-3 p-3.5 rounded-2xl border border-transparent transition-all hover:bg-gray-50 ${todo.completed ? 'opacity-50' : 'bg-gray-50/30'}`}
                   >
-                    <button 
+                    <button
                       onClick={() => onToggleTodo(todo.id)}
                       className={`w-5 h-5 rounded-md flex items-center justify-center border-2 transition-all ${todo.completed ? 'bg-teal-600 border-teal-600 text-white' : 'border-gray-200 text-transparent hover:border-teal-400'}`}
                     >
@@ -270,7 +285,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     <span className={`flex-1 text-[11px] font-bold transition-all line-clamp-1 ${todo.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
                       {todo.text}
                     </span>
-                    <button 
+                    <button
                       onClick={() => onDeleteTodo(todo.id)}
                       className="opacity-0 group-hover:opacity-100 p-1 text-gray-300 hover:text-red-500 transition-all"
                     >
@@ -297,7 +312,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <h3 className="text-2xl font-black tracking-tight">课时预警名单</h3>
                 <p className="text-rose-100 mt-1 font-medium text-sm">以下学员剩余课时不足 5 次，请及时联系续费</p>
               </div>
-              <button 
+              <button
                 onClick={() => setShowWarningModal(false)}
                 className="w-11 h-11 rounded-full bg-[#fb7185] flex items-center justify-center hover:bg-[#e11d48] transition-all shadow-lg active:scale-95"
               >
@@ -338,7 +353,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             </div>
 
             <div className="p-8 bg-white/50 border-t border-gray-100 flex gap-4">
-              <button 
+              <button
                 onClick={() => {
                   setShowWarningModal(false);
                   onTabChange(NavItem.Students);
