@@ -47,6 +47,13 @@ app.delete('/api/students/:id', async (req, res) => {
     res.json({ message: 'Deleted' });
 });
 
+app.put('/api/students/:id', async (req, res) => {
+    const { id } = req.params;
+    const { data, error } = await supabase.from('students').update(req.body).eq('id', id).select().single();
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
+});
+
 app.get('/api/coaches', async (req, res) => {
     const { data, error } = await supabase.from('coaches').select('*');
     if (error) return res.status(500).json({ error: error.message });
@@ -64,6 +71,13 @@ app.delete('/api/coaches/:id', async (req, res) => {
     const { error } = await supabase.from('coaches').delete().eq('id', id);
     if (error) return res.status(500).json({ error: error.message });
     res.json({ message: 'Deleted' });
+});
+
+app.put('/api/coaches/:id', async (req, res) => {
+    const { id } = req.params;
+    const { data, error } = await supabase.from('coaches').update(req.body).eq('id', id).select().single();
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
 });
 
 app.get('/api/courses', async (req, res) => {
@@ -86,6 +100,13 @@ app.get('/api/leads', async (req, res) => {
 
 app.post('/api/leads', async (req, res) => {
     const { data, error } = await supabase.from('leads').insert(req.body).select().single();
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
+});
+
+app.put('/api/leads/:id', async (req, res) => {
+    const { id } = req.params;
+    const { data, error } = await supabase.from('leads').update(req.body).eq('id', id).select().single();
     if (error) return res.status(500).json({ error: error.message });
     res.json(data);
 });

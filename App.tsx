@@ -89,20 +89,22 @@ const App: React.FC = () => {
   const addRecord = async (newRecords: Record[]) => {
     try {
       const savedRecords = await api.createRecords(newRecords);
-      // Supabase insert with select returns array for multiple.
       const recordsArray = Array.isArray(savedRecords) ? savedRecords : [savedRecords];
 
       setRecords(prev => [...recordsArray, ...prev]);
 
-      // Update local students state for deducted times
       const studentNames = recordsArray.map(r => r.studentName);
       const timesToDeduct = recordsArray[0].times;
 
-      setStudents(prev => prev.map(s =>
-        studentNames.includes(s.name)
-          ? { ...s, remainingTimes: Math.max(0, s.remainingTimes - timesToDeduct) }
-          : s
-      ));
+      // 为每个涉及的学员执行数据库更新
+      for (const sName of studentNames) {
+        const student = students.find(s => s.name === sName);
+        if (student) {
+          const updated = { ...student, remainingTimes: Math.max(0, student.remainingTimes - timesToDeduct) };
+          await api.updateStudent(student.id, updated);
+          setStudents(prev => prev.map(s => s.id === student.id ? updated : s));
+        }
+      }
     } catch (error) {
       console.error("Failed to add record:", error);
       alert("添加记录失败");
@@ -114,27 +116,38 @@ const App: React.FC = () => {
       const savedRenewal = await api.createRenewal(newRenewal);
       setRenewals(prev => [savedRenewal, ...prev]);
 
-      setStudents(prev => prev.map(s =>
-        s.name === savedRenewal.studentName
-          ? {
-            ...s,
-            remainingTimes: s.remainingTimes + savedRenewal.times,
-            totalTimes: s.totalTimes + savedRenewal.times
-          }
-          : s
-      ));
+      const student = students.find(s => s.name === savedRenewal.studentName);
+      if (student) {
+        const updated = {
+          ...student,
+          remainingTimes: student.remainingTimes + savedRenewal.times,
+          totalTimes: student.totalTimes + savedRenewal.times
+        };
+        await api.updateStudent(student.id, updated);
+        setStudents(prev => prev.map(s => s.id === student.id ? updated : s));
+      }
     } catch (error) {
       console.error("Failed to add renewal:", error);
       alert("添加续费失败");
     }
   };
 
-  const updateStudent = (updatedStudent: Student) => {
-    setStudents(prev => prev.map(s => s.id === updatedStudent.id ? updatedStudent : s));
+  const updateStudent = async (updatedStudent: Student) => {
+    try {
+      const saved = await api.updateStudent(updatedStudent.id, updatedStudent);
+      setStudents(prev => prev.map(s => s.id === saved.id ? saved : s));
+    } catch (error) {
+      console.error("Failed to update student:", error);
+    }
   };
 
-  const updateLead = (updatedLead: Lead) => {
-    setLeads(prev => prev.map(l => l.id === updatedLead.id ? updatedLead : l));
+  const updateLead = async (updatedLead: Lead) => {
+    try {
+      const saved = await api.updateLead(updatedLead.id, updatedLead);
+      setLeads(prev => prev.map(l => l.id === saved.id ? saved : l));
+    } catch (error) {
+      console.error("Failed to update lead:", error);
+    }
   };
 
   const addTodo = async (text: string) => {

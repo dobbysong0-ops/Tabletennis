@@ -1,5 +1,5 @@
 
-import { Student, Coach, Course, Lead, Record, Renewal, Todo } from '../types';
+import { Student, Coach, Course, Lead, Record, Renewal, Todo } from './types';
 
 const API_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
     ? 'http://localhost:3000/api'
@@ -149,5 +149,35 @@ export const api = {
             method: 'DELETE',
         });
         if (!res.ok) throw new Error('Failed to delete coach');
+    },
+
+    updateStudent: async (id: string, student: Partial<Student>): Promise<Student> => {
+        const res = await fetch(`${API_URL}/students/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(student),
+        });
+        if (!res.ok) throw new Error('Failed to update student');
+        return res.json();
+    },
+
+    updateCoach: async (id: string, coach: Partial<Coach>): Promise<Coach> => {
+        const res = await fetch(`${API_URL}/coaches/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(coach),
+        });
+        if (!res.ok) throw new Error('Failed to update coach');
+        return res.json();
+    },
+
+    updateLead: async (id: string, lead: Partial<Lead>): Promise<Lead> => {
+        const res = await fetch(`${API_URL}/leads/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(lead),
+        });
+        if (!res.ok) throw new Error('Failed to update lead');
+        return res.json();
     }
 };
